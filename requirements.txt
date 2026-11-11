@@ -1,0 +1,6 @@
+openrgb-python>=0.3.8
+PySide6-Essentials>=6.7
+numpy>=1.24
+python-xlib>=0.33
+psutil>=5.9
+nvidia-ml-py>=12.0
