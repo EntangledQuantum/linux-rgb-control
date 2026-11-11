@@ -16,8 +16,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap">
-<link rel="stylesheet" href="style.css?v=6">
-<script src="app.js?v=6" defer></script>
+<link rel="stylesheet" href="style.css?v=7">
+<script src="app.js?v=7" defer></script>
 </head>
 <body>
 <a class="skip" href="#playground">Skip to the playground</a>
@@ -128,12 +128,11 @@
           <div class="music-src" id="pg-music" hidden>
             <p class="ctl-title">Audio source</p>
             <div class="seg" role="group" aria-label="Audio source">
-              <button type="button" data-src="sim" aria-pressed="true">Simulated</button>
-              <button type="button" data-src="synth" aria-pressed="false">Synth beat</button>
+              <button type="button" data-src="synth" aria-pressed="true">Synth beat</button>
               <button type="button" data-src="file" aria-pressed="false">Your track</button>
             </div>
             <input type="file" id="pg-file" accept="audio/*" class="sr-only" tabindex="-1" aria-hidden="true">
-            <p class="music-status" id="pg-music-status">A silent simulated beat. Press <em>Synth beat</em> to hear a loop generated live with WebAudio, or load a track from your computer (it stays on your machine).</p>
+            <p class="music-status" id="pg-music-status">Playing a 122 BPM loop synthesised live in your browser. Press <em>Your track</em> to use a song from your computer instead (it never leaves your machine).</p>
             <div class="meter" id="pg-meter" aria-hidden="true"></div>
           </div>
 

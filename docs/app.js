@@ -1040,7 +1040,8 @@
     }
   }
 
-  // Shared playground audio: simulated by default; synth loop or a local file on request.
+  // Shared playground audio: a synth loop (starts when you pick a music style) or a local file.
+  // 'sim' is only the silent idle state outside music mode (and the hero, which never makes sound).
   const Music = {
     mode: 'sim', st: newAudioState(), sim: new SimSignal(), actx: null, master: null, live: null, synth: null, el: null, url: null,
     ensure() {
@@ -1558,13 +1559,14 @@
       const cls = EFFECTS[key];
       lastInMode[mode] = key;
       [...stylesEl.children].forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.key === key)));
-      if (!isMusic(key) && Music.mode !== 'sim') { Music.useSim(); syncMusicButtons('sim'); }
+      if (!isMusic(key) && Music.mode !== 'sim') Music.useSim();   // leaving music: stop the sound
+      if (isMusic(key) && Music.mode === 'sim') startSynth();         // entering music: play straight away
       r.setEffect(key);
       r.wake(1);
       $('pg-name').textContent = cls.cat === 'Music' ? `Music: ${cls.label}` : cls.label;
       $('pg-cat').textContent = cls.cat;
       $('pg-help').textContent = cls.help;
-      const hint = cls.hint || (cls.cat === 'Music' ? 'Choose an audio source in the panel: a silent simulated beat, a live synth loop, or your own track.' : '');
+      const hint = cls.hint || (cls.cat === 'Music' ? 'Music is playing: watch the fans dance. Switch to Your track in the panel to use your own song.' : '');
       hintEl.innerHTML = hint ? `<span class="k">Try it</span><span></span>` : '';
       if (hint) hintEl.lastChild.textContent = hint;
       wheelPad.hidden = !(cls.input && cls.input.wheel);
@@ -1652,16 +1654,16 @@
     // ---- audio source ----
     const syncMusicButtons = (src) => musicEl.querySelectorAll('[data-src]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.src === src)));
     const STATUS = {
-      sim: 'A silent simulated beat. Press <em>Synth beat</em> to hear a loop generated live with WebAudio, or load a track from your computer (it stays on your machine).',
-      synth: 'Playing a 122 BPM loop synthesised in your browser. The analyser is a port of the app’s: FFT bands, adaptive levels and bass-onset beat detection.',
+      synth: 'Playing a 122 BPM loop synthesised live in your browser. The analyser is a port of the app’s: FFT bands, adaptive levels and bass-onset beat detection. Press <em>Your track</em> to use your own song.',
     };
+    function startSynth() {
+      if (Music.useSynth()) { syncMusicButtons('synth'); statusEl.innerHTML = STATUS.synth; }
+      else { syncMusicButtons('synth'); statusEl.textContent = 'Your browser doesn’t support WebAudio, so the lights follow a built-in silent beat.'; }
+    }
     musicEl.querySelectorAll('[data-src]').forEach((b) => b.addEventListener('click', () => {
       const src = b.dataset.src;
-      if (src === 'sim') { Music.useSim(); syncMusicButtons('sim'); statusEl.innerHTML = STATUS.sim; }
-      else if (src === 'synth') {
-        if (Music.useSynth()) { syncMusicButtons('synth'); statusEl.innerHTML = STATUS.synth; }
-        else statusEl.textContent = 'Your browser doesn’t support WebAudio, so the simulated signal stays on.';
-      } else fileEl.click();
+      if (src === 'synth') startSynth();
+      else fileEl.click();
       r.wake(1);
     }));
     fileEl.addEventListener('change', () => {
@@ -1671,7 +1673,7 @@
       if (res === false) { statusEl.textContent = 'Your browser doesn’t support WebAudio.'; return; }
       syncMusicButtons('file');
       statusEl.textContent = `Playing “${f.name}” from your computer. Nothing is uploaded.`;
-      if (res && res.catch) res.catch(() => { statusEl.textContent = 'That file couldn’t be played. Try an MP3, OGG or WAV.'; Music.useSim(); syncMusicButtons('sim'); });
+      if (res && res.catch) res.catch(() => { startSynth(); statusEl.textContent = 'That file couldn’t be played (try MP3, OGG or WAV), so the synth beat is back on.'; });
       fileEl.value = '';
     });
 
